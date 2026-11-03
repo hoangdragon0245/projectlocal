@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Máy tính giá bình quân - DCA Calculator</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
+</head>
+<body>
+  <!-- Global Navigation -->
+  <nav class="global-navbar">
+    <div class="navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <span>📈</span> StockTool VN
+      </a>
+      <ul class="nav-tabs">
+        <li><a href="index.html" class="nav-link active">📊 Máy tính giá bình quân (DCA)</a></li>
+        <li><a href="stock-pnl.html" class="nav-link">📈 Tính lãi lỗ & Thuế phí</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="calculator-app">
+    <!-- Header -->
+    <header class="app-header">
+      <h1 class="app-title">Máy tính giá bình quân</h1>
+      <button type="button" class="btn-settings" id="btn-open-settings" title="Cài đặt tiền tệ">
+        <span>⚙</span> Cài đặt tiền tệ
+      </button>
+    </header>
+
+    <!-- Main Table Container -->
+    <div class="table-container">
+      <table class="calc-table">
+        <thead>
+          <tr>
+            <th class="col-stt"></th>
+            <th class="col-price">Giá mua <span id="header-price-currency">(đ)</span></th>
+            <th class="col-symbol"></th>
+            <th class="col-qty">Số lượng (n)</th>
+            <th class="col-symbol"></th>
+            <th class="col-total">Tổng cộng <span id="header-total-currency">(đ)</span></th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="calc-table-body">
+          <!-- Dynamic Input Rows injected by app.js -->
+        </tbody>
+        <tfoot>
+          <!-- Summary Row inside table -->
+          <tr class="row-summary">
+            <td class="col-stt"></td>
+            <td class="col-price avg-val-cell" id="inline-avg-price">0</td>
+            <td class="col-symbol">x</td>
+            <td class="col-qty total-qty-cell" id="inline-total-qty">0</td>
+            <td class="col-symbol">=</td>
+            <td class="col-total total-cost-cell" id="inline-total-cost">0</td>
+            <td class="col-actions"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Actions Toolbar -->
+    <div class="toolbar-actions">
+      <!-- Add row button -->
+      <button type="button" class="btn-add-row" id="btn-add-row" title="Thêm dòng mua">+</button>
+
+      <!-- Preset Controls -->
+      <div class="preset-controls">
+        <div class="icon-buttons">
+          <button type="button" class="btn-icon" id="btn-save" title="Lưu kịch bản">💾</button>
+          <button type="button" class="btn-icon" id="btn-reset" title="Làm mới bảng tính">↻</button>
+          <button type="button" class="btn-icon" id="btn-history" title="Danh sách kịch bản đã lưu">☰</button>
+        </div>
+        <div class="select-preset-wrapper">
+          <select id="select-preset" class="select-preset">
+            <option value="">-- Chọn kịch bản --</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <hr class="divider" />
+
+    <!-- Big Summary Section -->
+    <section class="big-summary">
+      <div class="summary-row-top">
+        <!-- Giá bình quân -->
+        <div class="summary-card">
+          <span class="summary-label">Giá bình quân</span>
+          <div class="summary-value-large avg-price-highlight">
+            <span id="big-avg-price">0</span><span class="currency-badge" id="big-avg-currency">đ</span>
+          </div>
+        </div>
+
+        <!-- Tổng số lượng -->
+        <div class="summary-card">
+          <span class="summary-label">Tổng số lượng</span>
+          <div class="summary-value-large" id="big-total-qty">0</div>
+        </div>
+      </div>
+
+      <!-- Tổng số tiền -->
+      <div class="summary-row-bottom">
+        <span class="summary-label">Tổng số tiền</span>
+        <div class="summary-total-cost-val">
+          <span id="big-total-cost">0</span><span class="currency-underline" id="big-total-currency">đ</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal: Cài đặt tiền tệ -->
+  <div class="modal-backdrop" id="settings-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">⚙ Cài đặt tiền tệ & Định dạng</h3>
+        <button type="button" class="btn-close-modal" id="btn-close-settings">&times;</button>
+      </div>
+      <form id="form-settings">
+        <div class="form-group">
+          <label class="form-label" for="setting-symbol">Ký hiệu tiền tệ</label>
+          <input type="text" class="form-control" id="setting-symbol" value="đ" maxlength="6" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="setting-thousand-sep">Dấu phân cách hàng nghìn</label>
+          <select class="form-control" id="setting-thousand-sep">
+            <option value=".">Dấu chấm (.) - VD: 231.000</option>
+            <option value=",">Dấu phẩy (,) - VD: 231,000</option>
+            <option value=" ">Khoảng trắng ( ) - VD: 231 000</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="setting-decimal-sep">Dấu phân cách thập phân</label>
+          <select class="form-control" id="setting-decimal-sep">
+            <option value=",">Dấu phẩy (,) - VD: 221,667</option>
+            <option value=".">Dấu chấm (.) - VD: 221.667</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="setting-decimals">Số chữ số lẻ cho Giá bình quân</label>
+          <select class="form-control" id="setting-decimals">
+            <option value="0" selected>0 chữ số (Chuẩn VNĐ - VD: 221.667)</option>
+            <option value="2">2 chữ số (USD/EUR - VD: 221.666,67)</option>
+            <option value="3">3 chữ số (VD: 221.666,667)</option>
+            <option value="4">4 chữ số (Crypto/Forex)</option>
+            <option value="6">6 chữ số (Crypto Token)</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn-primary">Áp dụng</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Lưu kịch bản -->
+  <div class="modal-backdrop" id="save-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">💾 Lưu kịch bản tính toán</h3>
+        <button type="button" class="btn-close-modal" id="btn-close-save">&times;</button>
+      </div>
+      <form id="form-save-preset">
+        <div class="form-group">
+          <label class="form-label" for="preset-name">Tên kịch bản / Mã cổ phiếu / Token</label>
+          <input type="text" class="form-control" id="preset-name" placeholder="Ví dụ: Mua gom cổ phiếu HPG" required>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn-primary">Lưu ngay</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Quản lý kịch bản đã lưu -->
+  <div class="modal-backdrop" id="history-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">☰ Danh sách kịch bản đã lưu</h3>
+        <button type="button" class="btn-close-modal" id="btn-close-history">&times;</button>
+      </div>
+      <div class="preset-list-container" id="preset-list">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="document.getElementById('history-modal').classList.remove('active')">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notice" id="toast-notice">Thông báo</div>
+
+  <!-- Scripts -->
+  <script src="js/calculator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

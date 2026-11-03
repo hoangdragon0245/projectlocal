@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tính lãi lỗ mua bán chứng khoán & Giá hòa vốn</title>
+  <link rel="stylesheet" href="css/stock-pnl.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+</head>
+<body>
+  <!-- Global Navigation -->
+  <nav class="global-navbar">
+    <div class="navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <span>📈</span> StockTool VN
+      </a>
+      <ul class="nav-tabs">
+        <li><a href="index.html" class="nav-link">📊 Máy tính giá bình quân (DCA)</a></li>
+        <li><a href="stock-pnl.html" class="nav-link active">📈 Tính lãi lỗ & Thuế phí</a></li>
+      </ul>
+      <button type="button" class="btn-theme-toggle" id="theme-toggle" title="Đổi giao diện Sáng / Tối">🌓</button>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <main class="page-container">
+    <h1 class="page-title">Tính lãi lỗ mua bán chứng khoán sau phí giao dịch và thuế bán, kèm giá hòa vốn</h1>
+
+    <!-- Two-column Top Section -->
+    <div class="top-grid">
+      <!-- Left Card: Thông tin mua -->
+      <section class="app-card">
+        <h2 class="card-header-title">
+          <span>📈</span> Thông tin mua
+        </h2>
+
+        <!-- Toggle: Mua nhiều đợt -->
+        <div class="toggle-group">
+          <div class="toggle-info">
+            <span class="toggle-label">Mua nhiều đợt (trung bình giá vốn)</span>
+            <span class="toggle-subtext">Bật lên nếu bạn mua rải nhiều lần với giá khác nhau</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-dca">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Single Buy Form -->
+        <div id="single-buy-container">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="input-buy-price">Giá mua / cổ phiếu (đồng)</label>
+              <input type="text" class="form-input" id="input-buy-price" placeholder="VD: 221.667">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-buy-qty">Khối lượng mua (cổ phiếu)</label>
+              <input type="number" class="form-input" id="input-buy-qty" placeholder="VD: 300">
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-buy DCA Container (Hidden by default) -->
+        <div id="dca-multi-container" class="hidden">
+          <div class="dca-table-wrap">
+            <table class="dca-table">
+              <thead>
+                <tr style="font-size:12px; color:#6b7280;">
+                  <th style="width:30px; text-align:center;">#</th>
+                  <th>Giá mua (đ)</th>
+                  <th style="width:20px;"></th>
+                  <th>Số lượng</th>
+                  <th style="width:25px;"></th>
+                </tr>
+              </thead>
+              <tbody id="dca-table-body">
+                <!-- Injected via stock-pnl.js -->
+              </tbody>
+            </table>
+            <button type="button" class="btn-add-dca" id="btn-add-dca-row">+ Thêm đợt mua</button>
+            <div id="dca-summary-note" style="margin-top:8px; font-size:12px; font-weight:600; color:#0284c7;"></div>
+          </div>
+        </div>
+
+        <!-- Toggle: Đã bán chưa? -->
+        <div class="toggle-group" style="margin-top: 20px;">
+          <div class="toggle-info">
+            <span class="toggle-label">Đã bán chưa?</span>
+            <span class="toggle-subtext">Tắt để nhập giá thị trường hiện tại, tính lãi lỗ tạm tính</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-sold" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Sell Price Input -->
+        <div class="form-group">
+          <label class="form-label" id="label-sell-price" for="input-sell-price">Giá bán / cổ phiếu (đồng)</label>
+          <input type="text" class="form-input" id="input-sell-price" placeholder="VD: 241.000">
+        </div>
+      </section>
+
+      <!-- Right Card: Phí và thuế -->
+      <section class="app-card">
+        <h2 class="card-header-title">
+          <span>ℹ️</span> Phí và thuế
+        </h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="input-fee-buy">Phí giao dịch mua (%)</label>
+            <input type="text" class="form-input" id="input-fee-buy" value="0,2">
+            <p class="input-desc">Khác nhau tùy công ty chứng khoán và gói dịch vụ, xem biểu phí trong hợp đồng của bạn</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-fee-sell">Phí giao dịch bán (%)</label>
+            <input type="text" class="form-input" id="input-fee-sell" value="0,2">
+            <p class="input-desc">Thường cùng biểu phí với chiều mua</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-tax-sell">Thuế bán chứng khoán (%)</label>
+          <input type="text" class="form-input" id="input-tax-sell" value="0,1">
+          <p class="input-desc">Mặc định 0.1% trên giá trị bán — đây là mức thuế khoán áp dụng chung theo quy định hiện hành tại Việt Nam, tính trên toàn bộ giá trị bán chứ không phụ thuộc bạn lãi hay lỗ.</p>
+        </div>
+
+        <!-- Inner Summary Box -->
+        <div class="pnl-inner-summary">
+          <div class="pnl-inner-row">
+            <span class="pnl-inner-label">Tổng vốn mua (gồm phí)</span>
+            <div class="pnl-inner-val" id="display-total-buy">66.633.100đ</div>
+            <span class="pnl-inner-desc" id="detail-total-buy">66.500.100đ tiền cổ phiếu + 133.000đ phí mua</span>
+          </div>
+          <hr style="border:none; border-top:1px dashed #cbd5e1; margin:12px 0;">
+          <div class="pnl-inner-row">
+            <span class="pnl-inner-label">Tổng thu về khi bán</span>
+            <div class="pnl-inner-val" id="display-total-sell">72.083.100đ</div>
+            <span class="pnl-inner-desc" id="detail-total-sell">72.300.000đ tiền bán – 144.600đ phí bán – 72.300đ thuế bán</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 3 Middle Metrics Cards -->
+    <div class="middle-metrics-grid">
+      <!-- Card 1: Lãi / Lỗ -->
+      <div class="metric-card">
+        <span class="metric-label">Lãi / Lỗ</span>
+        <div class="metric-value text-profit" id="card-profit-val">+5.450.000đ</div>
+      </div>
+
+      <!-- Card 2: Tỷ suất lãi / lỗ -->
+      <div class="metric-card">
+        <span class="metric-label">Tỷ suất lãi / lỗ</span>
+        <div class="metric-value text-profit" id="card-profit-rate">+8,18%</div>
+      </div>
+
+      <!-- Card 3: Giá hòa vốn -->
+      <div class="metric-card">
+        <span class="metric-label">Giá hòa vốn (bán tối thiểu)</span>
+        <div class="metric-value" id="card-breakeven-price" style="color:var(--pnl-text-main);">222.779đ</div>
+        <p class="metric-subtext">Bán đúng giá này thì không lãi không lỗ sau phí và thuế. Khi đặt lệnh, làm tròn lên theo bước giá của sàn.</p>
+      </div>
+    </div>
+
+    <!-- Bottom Breakdown Table -->
+    <section class="breakdown-card">
+      <h2 class="breakdown-title">Bảng chi tiết dòng tiền</h2>
+      <table class="breakdown-table">
+        <thead>
+          <tr>
+            <th>Khoản mục</th>
+            <th class="text-right">Giá trị</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Khối lượng cổ phiếu</td>
+            <td class="tb-val" id="tb-qty">300 cổ phiếu</td>
+          </tr>
+          <tr>
+            <td>Giá vốn trung bình / cổ phiếu</td>
+            <td class="tb-val" id="tb-avg-price">221.667đ</td>
+          </tr>
+          <tr>
+            <td>Tiền mua cổ phiếu</td>
+            <td class="tb-val" id="tb-buy-cost">66.500.100đ</td>
+          </tr>
+          <tr>
+            <td>Phí giao dịch mua</td>
+            <td class="tb-val text-loss" id="tb-fee-buy">-133.000đ</td>
+          </tr>
+          <tr>
+            <td class="font-bold">Tổng vốn bỏ ra</td>
+            <td class="tb-val font-bold" id="tb-total-buy">66.633.100đ</td>
+          </tr>
+          <tr>
+            <td>Tiền bán cổ phiếu</td>
+            <td class="tb-val" id="tb-sell-revenue">72.300.000đ</td>
+          </tr>
+          <tr>
+            <td>Phí giao dịch bán</td>
+            <td class="tb-val text-loss" id="tb-fee-sell">-144.600đ</td>
+          </tr>
+          <tr>
+            <td>Thuế bán chứng khoán</td>
+            <td class="tb-val text-loss" id="tb-tax-sell">-72.300đ</td>
+          </tr>
+          <tr>
+            <td class="font-bold">Tổng thu về</td>
+            <td class="tb-val font-bold" id="tb-total-sell">72.083.100đ</td>
+          </tr>
+          <tr>
+            <td class="font-bold">Lãi / Lỗ</td>
+            <td class="tb-val font-bold text-profit" id="tb-net-profit">+5.450.000đ</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="js/stock-pnl.js"></script>
+  <script>
+    // Theme toggle handling (Default is dark black theme)
+    const themeBtn = document.getElementById('theme-toggle');
+    const currentTheme = localStorage.getItem('app_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+
+    themeBtn.addEventListener('click', () => {
+      const active = document.documentElement.getAttribute('data-theme');
+      const next = active === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('app_theme', next);
+    });
+  </script>
+</body>
+</html>

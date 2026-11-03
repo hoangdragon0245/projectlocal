@@ -1,0 +1,36 @@
+[
+  {
+    "id": "preset_1793604248896",
+    "name": "DCA VND",
+    "rows": [
+      {
+        "price": 14750,
+        "quantity": 2200
+      },
+      {
+        "price": 12850,
+        "quantity": 5500
+      },
+      {
+        "price": "",
+        "quantity": ""
+      },
+      {
+        "price": "",
+        "quantity": ""
+      },
+      {
+        "price": "",
+        "quantity": ""
+      }
+    ],
+    "currencySettings": {
+      "symbol": "đ",
+      "thousandSep": ".",
+      "decimalSep": ",",
+      "maxDecimals": 0,
+      "autoDecimals": true
+    },
+    "createdAt": "2026-11-02T07:24:08.896Z"
+  }
+]

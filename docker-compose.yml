@@ -1,0 +1,20 @@
+services:
+  stocktool:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stocktool-vn
+    restart: unless-stopped
+    ports:
+      - "3030:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/presets"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
